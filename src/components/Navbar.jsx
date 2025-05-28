@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,6 +21,16 @@ export const Navbar = () => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Redirect ke landing page saat logo diklik
+  const handleLogoClick = () => {
+    navigate("/");
+  };
+
+  // Redirect ke halaman login saat tombol login diklik
+  const handleLoginClick = () => {
+    navigate("/login");
+  };
+
   return (
     <header
       className={`fixed top-0 left-0 w-full transition-all duration-300 z-50 ${
@@ -31,8 +43,8 @@ export const Navbar = () => {
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
           <div className="flex items-center">
-            <a
-              onClick={() => handleNavClick("home")}
+            <button
+              onClick={handleLogoClick}
               className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium cursor-pointer"
             >
               <div className="flex-shrink-0 flex items-center">
@@ -43,7 +55,7 @@ export const Navbar = () => {
                   Smart Recruiter
                 </span>
               </div>
-            </a>
+            </button>
           </div>
 
           {/* Desktop Menu */}
@@ -66,7 +78,10 @@ export const Navbar = () => {
             >
               Kontak
             </a>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm">
+            <button
+              onClick={handleLoginClick}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm cursor-pointer"
+            >
               Login
             </button>
           </nav>
@@ -75,7 +90,7 @@ export const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-700 hover:text-gray-900 focus:outline-none"
+              className="text-gray-700 hover:text-gray-900 focus:outline-none cursor-pointer"
             >
               {isOpen ? <HiX size={28} /> : <HiMenu size={28} />}
             </button>
@@ -104,7 +119,10 @@ export const Navbar = () => {
           >
             Kontak
           </a>
-          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm cursor-pointer">
+          <button
+            onClick={handleLoginClick}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm cursor-pointer"
+          >
             Login
           </button>
         </div>
