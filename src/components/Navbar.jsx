@@ -6,6 +6,15 @@ export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Cek apakah user sudah login
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -78,12 +87,25 @@ export const Navbar = () => {
             >
               Kontak
             </a>
+            {user ? (
+              <span className="text-gray-700 px-3 py-2 text-sm font-medium">
+                Hi, {user.name || user.email}!
+              </span>
+            ) : (
+              <button
+                onClick={handleLoginClick}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm cursor-pointer"
+              >
+                Login
+              </button>
+            )}
+
             <button
-              onClick={handleLoginClick}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm cursor-pointer"
-            >
-              Login
-            </button>
+              onClick={() => {
+                localStorage.removeItem("user");
+                window.location.reload();
+              }}
+            ></button>
           </nav>
 
           {/* Hamburger Icon */}

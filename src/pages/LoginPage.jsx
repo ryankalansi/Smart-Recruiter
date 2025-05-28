@@ -16,31 +16,37 @@ const LoginPage = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    setError(""); // Reset
+    setError("");
   };
 
   const handleLogin = async () => {
     try {
-      // Di sini akan memanggil API login
-      // const response = await fetch('/api/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
+      const response = await fetch("http://localhost:3000/api/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
-      // Simulasi pengecekan user terdaftar
-      const isUserRegistered = false; // Ganti dengan response dari API
-
-      if (!isUserRegistered) {
-        setError("Akun belum terdaftar. Silakan daftar terlebih dahulu.");
-        return;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Login gagal, silakan coba lagi.");
       }
 
-      // Jika login berhasil, redirect ke dashboard atau halaman utama
-      console.log("Login berhasil:", formData);
+      const data = await response.json();
+      console.log("Login berhasil:", data);
+
+      // Simpan token atau user ke localStorage
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Redirect
+      navigate("/");
     } catch (error) {
       console.error("Login error:", error);
-      setError("Terjadi kesalahan saat login. Silakan coba lagi.");
+      setError(
+        error.message || "Terjadi kesalahan saat login, silakan coba lagi."
+      );
     }
   };
 
@@ -90,7 +96,7 @@ const LoginPage = () => {
           </div>
         )}
 
-        {/* Login */}
+        {/* Login Form */}
         <div className="space-y-6">
           {/* Email Field */}
           <div>

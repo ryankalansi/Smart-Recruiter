@@ -68,32 +68,37 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      // Di sini Anda akan memanggil API register
-      // const response = await fetch('/api/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     name: formData.fullName,
-      //     email: formData.email,
-      //     password: formData.password
-      //   })
-      // });
+      const response = await fetch("http://localhost:3000/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-      // Simulasi API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Registrasi gagal");
+      }
 
-      console.log("Registration successful:", formData);
+      const result = await response.json();
+      console.log("Registrasi berhasil:", result);
 
-      // Setelah registrasi berhasil, redirect ke login
       navigate("/login", {
         state: {
-          message: "Registrasi berhasil! Silakan login dengan akun Anda.",
+          message: "Registrasi berhasil! Silakan login dengan akun anda.",
         },
       });
     } catch (error) {
       console.error("Registration error:", error);
       setErrors({
-        general: "Terjadi kesalahan saat mendaftar. Silakan coba lagi.",
+        general:
+          error.message ||
+          "Terjadi kesalahan saat mendaftar. Silakan coba lagi.",
       });
     } finally {
       setIsLoading(false);
