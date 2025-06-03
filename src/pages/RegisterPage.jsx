@@ -1,4 +1,3 @@
-// pages/RegisterPage.jsx
 import { useState } from "react";
 import { HiEye, HiEyeOff, HiUser, HiArrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
@@ -68,6 +67,13 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     try {
+      // Hapus atau komentari log data sensitif
+      // console.log("Sending data:", {
+      //   name: formData.fullName,
+      //   email: formData.email,
+      //   password: formData.password, // TIDAK PERNAH log password!
+      // });
+
       const response = await fetch("http://localhost:3000/api/auth/signup", {
         method: "POST",
         headers: {
@@ -80,21 +86,48 @@ const RegisterPage = () => {
         }),
       });
 
+      // console.log("Response status:", response.status); // Ini bisa tetap ada jika tidak terlalu verbose
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Registrasi gagal");
+        let errorMessage = "Registrasi gagal";
+
+        try {
+          const result = await response.json();
+          errorMessage = result.message || errorMessage;
+        } catch (jsonError) {
+          console.error("Error parsing JSON:", jsonError);
+          errorMessage = `Server error (${response.status})`;
+        }
+
+        throw new Error(errorMessage);
       }
 
-      const result = await response.json();
-      console.log("Registrasi berhasil:", result);
+      let result;
+      try {
+        result = await response.json();
+        // Hapus atau komentari log data sensitif
+        // console.log("Response body:", result);
+      } catch (jsonError) {
+        console.error("Error parsing JSON:", jsonError);
+        throw new Error("Invalid response from server");
+      }
 
+      // Hapus atau komentari log data sensitif
+      // console.log("Registrasi berhasil:", result);
+
+      // Simpan token jika ada
+      if (result.token) {
+        localStorage.setItem("token", result.token);
+      }
+
+      // Redirect ke login dengan pesan sukses
       navigate("/login", {
         state: {
           message: "Registrasi berhasil! Silakan login dengan akun anda.",
         },
       });
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("Registration error:", error); // Tetap penting untuk debugging error
       setErrors({
         general:
           error.message ||

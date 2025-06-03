@@ -11,9 +11,44 @@ export const Navbar = () => {
   useEffect(() => {
     // Cek apakah user sudah login
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    // Hapus atau komentari log data sensitif
+    // console.log("Stored user from localStorage:", storedUser);
+
+    if (storedUser && storedUser !== "undefined") {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        // Hapus atau komentari log data sensitif
+        // console.log("Parsed user data:", parsedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error("Error parsing user data:", error); // Tetap penting untuk debugging
+        // Bersihkan localStorage jika data rusak
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      }
     }
+
+    // Listen untuk perubahan localStorage (untuk real-time update)
+    const handleStorageChange = () => {
+      const updatedUser = localStorage.getItem("user");
+      if (updatedUser && updatedUser !== "undefined") {
+        try {
+          setUser(JSON.parse(updatedUser));
+        } catch (error) {
+          console.error("Error parsing updated user data:", error); // Tetap penting
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+    };
+
+    // Listen untuk custom event yang kita trigger setelah login
+    window.addEventListener("userLoggedIn", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("userLoggedIn", handleStorageChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -27,17 +62,48 @@ export const Navbar = () => {
 
   const handleNavClick = (id) => {
     setIsOpen(false); // Tutup menu mobile setelah klik
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   // Redirect ke landing page saat logo diklik
   const handleLogoClick = () => {
     navigate("/");
+    setIsOpen(false);
   };
 
   // Redirect ke halaman login saat tombol login diklik
   const handleLoginClick = () => {
     navigate("/login");
+    setIsOpen(false);
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    setUser(null);
+    setIsOpen(false);
+    // Refresh halaman untuk memastikan state ter-reset
+    window.location.reload();
+  };
+
+  // Function untuk mendapatkan nama yang akan ditampilkan
+  const getDisplayName = () => {
+    if (!user) return "";
+
+    if (user.name && user.name.trim()) {
+      return user.name;
+    }
+
+    if (user.email) {
+      // Ambil bagian sebelum @ dari email sebagai fallback
+      return user.email.split("@")[0];
+    }
+
+    return "User";
   };
 
   return (
@@ -68,29 +134,38 @@ export const Navbar = () => {
           </div>
 
           {/* Desktop Menu */}
-          <nav className="hidden md:flex space-x-4">
-            <a
+          <nav className="hidden md:flex space-x-4 items-center">
+            <button
               onClick={() => handleNavClick("home")}
               className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium cursor-pointer"
             >
               Home
-            </a>
-            <a
+            </button>
+            <button
               onClick={() => handleNavClick("fitur")}
               className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium cursor-pointer"
             >
               Fitur
-            </a>
-            <a
+            </button>
+            <button
               onClick={() => handleNavClick("kontak")}
               className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium cursor-pointer"
             >
               Kontak
-            </a>
+            </button>
+
             {user ? (
-              <span className="text-gray-700 px-3 py-2 text-sm font-medium">
-                Hi, {user.name || user.email}!
-              </span>
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-700 px-3 py-2 text-sm font-medium">
+                  Hi, {getDisplayName()}!
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md text-sm cursor-pointer"
+                >
+                  Logout
+                </button>
+              </div>
             ) : (
               <button
                 onClick={handleLoginClick}
@@ -99,13 +174,6 @@ export const Navbar = () => {
                 Login
               </button>
             )}
-
-            <button
-              onClick={() => {
-                localStorage.removeItem("user");
-                window.location.reload();
-              }}
-            ></button>
           </nav>
 
           {/* Hamburger Icon */}
@@ -123,30 +191,45 @@ export const Navbar = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white shadow-md px-4 pb-4 space-y-2">
-          <a
+          <button
             onClick={() => handleNavClick("home")}
-            className="block text-gray-700 hover:text-gray-900 py-2 text-sm font-medium cursor-pointer"
+            className="block text-gray-700 hover:text-gray-900 py-2 text-sm font-medium cursor-pointer w-full text-left"
           >
             Home
-          </a>
-          <a
+          </button>
+          <button
             onClick={() => handleNavClick("fitur")}
-            className="block text-gray-700 hover:text-gray-900 py-2 text-sm font-medium cursor-pointer"
+            className="block text-gray-700 hover:text-gray-900 py-2 text-sm font-medium cursor-pointer w-full text-left"
           >
             Fitur
-          </a>
-          <a
+          </button>
+          <button
             onClick={() => handleNavClick("kontak")}
-            className="block text-gray-700 hover:text-gray-900 py-2 text-sm font-medium cursor-pointer"
+            className="block text-gray-700 hover:text-gray-900 py-2 text-sm font-medium cursor-pointer w-full text-left"
           >
             Kontak
-          </a>
-          <button
-            onClick={handleLoginClick}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm cursor-pointer"
-          >
-            Login
           </button>
+
+          {user ? (
+            <div className="pt-2 border-t border-gray-200">
+              <p className="text-gray-700 py-2 text-sm font-medium">
+                Hi, {getDisplayName()}!
+              </p>
+              <button
+                onClick={handleLogout}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md text-sm cursor-pointer"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleLoginClick}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm cursor-pointer"
+            >
+              Login
+            </button>
+          )}
         </div>
       )}
     </header>

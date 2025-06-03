@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HiEye, HiEyeOff, HiLockClosed, HiArrowLeft } from "react-icons/hi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -9,7 +9,17 @@ const LoginPage = () => {
     password: "",
   });
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Cek apakah ada pesan sukses dari registrasi
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message);
+    }
+  }, [location.state]);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -19,34 +29,103 @@ const LoginPage = () => {
     setError("");
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    if (!formData.email || !formData.password) {
+      setError("Email dan password harus diisi");
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
+      // Hapus atau komentari log data sensitif
+      // console.log("Attempting login with:", { email: formData.email });
+
       const response = await fetch("http://localhost:3000/api/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
+      // console.log("Response status:", response.status); // Boleh tetap ada
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Login gagal, silakan coba lagi.");
+        let errorMessage = "Login gagal";
+
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (jsonError) {
+          console.error("Error parsing error JSON:", jsonError);
+          errorMessage = `Server error (${response.status})`;
+        }
+
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
-      console.log("Login berhasil:", data);
+      let data;
+      try {
+        data = await response.json();
+        // Hapus atau komentari log data sensitif
+        // console.log("Login berhasil:", data);
+      } catch (jsonError) {
+        console.error("Error parsing success JSON:", jsonError);
+        throw new Error("Invalid response from server");
+      }
 
-      // Simpan token atau user ke localStorage
-      localStorage.setItem("user", JSON.stringify(data.user));
+      // Simpan token
+      if (data.data) {
+        localStorage.setItem("token", data.data);
+      }
 
-      // Redirect
-      navigate("/");
+      // Decode JWT untuk mendapatkan user info
+      if (data.data) {
+        try {
+          // Decode JWT payload (base64)
+          const tokenParts = data.data.split(".");
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            // Hapus atau komentari log data sensitif
+            // console.log("Decoded token payload:", payload);
+
+            // Simpan user data dari token
+            const userData = {
+              email: payload.email,
+              name: payload.name || payload.email.split("@")[0], // fallback jika tidak ada name
+              id: payload.id || payload.userId,
+            };
+
+            localStorage.setItem("user", JSON.stringify(userData));
+            // Hapus atau komentari log data sensitif
+            // console.log("User data saved:", userData);
+          }
+        } catch (tokenError) {
+          console.error("Error decoding token:", tokenError); // Tetap penting untuk debugging
+          // Fallback: simpan email saja jika ada masalah dengan token
+          const fallbackUser = {
+            email: formData.email,
+            name: formData.email.split("@")[0],
+          };
+          localStorage.setItem("user", JSON.stringify(fallbackUser));
+        }
+      }
+
+      // Redirect ke halaman utama
+      navigate("/", { replace: true });
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login error:", error); // Tetap penting untuk debugging error
       setError(
         error.message || "Terjadi kesalahan saat login, silakan coba lagi."
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -89,6 +168,13 @@ const LoginPage = () => {
           </p>
         </div>
 
+        {/* Success Message */}
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 text-sm">
+            {successMessage}
+          </div>
+        )}
+
         {/* Error Message */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
@@ -97,7 +183,7 @@ const LoginPage = () => {
         )}
 
         {/* Login Form */}
-        <div className="space-y-6">
+        <form onSubmit={handleLogin} className="space-y-6">
           {/* Email Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -110,6 +196,8 @@ const LoginPage = () => {
               onChange={handleInputChange}
               placeholder="Masukkan email Anda"
               className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+              disabled={isLoading}
+              required
             />
           </div>
 
@@ -126,11 +214,14 @@ const LoginPage = () => {
                 onChange={handleInputChange}
                 placeholder="Masukkan password Anda"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all pr-12"
+                disabled={isLoading}
+                required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                disabled={isLoading}
               >
                 {showPassword ? (
                   <HiEyeOff className="w-5 h-5" />
@@ -143,16 +234,24 @@ const LoginPage = () => {
 
           {/* Login Button */}
           <button
-            onClick={handleLogin}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors cursor-pointer"
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
           >
-            Login
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Masuk...
+              </>
+            ) : (
+              "Login"
+            )}
           </button>
-        </div>
+        </form>
 
         {/* Forgot Password */}
         <div className="text-center mt-4">
-          <button className="text-blue-600 hover:text-blue-700 text-sm cursor-pointer">
+          <button className="text-blue-600 hover:text-blue-700 text-sm">
             Lupa password?
           </button>
         </div>
@@ -163,7 +262,8 @@ const LoginPage = () => {
             Belum punya akun?{" "}
             <button
               onClick={switchToRegister}
-              className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
+              className="text-blue-600 hover:text-blue-700 font-medium"
+              disabled={isLoading}
             >
               Daftar sekarang
             </button>
