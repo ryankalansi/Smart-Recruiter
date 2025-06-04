@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -60,18 +61,60 @@ export const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleNavClick = (id) => {
+  // Function untuk handle navigation yang berbeda tergantung current page
+  const handleNavClick = (section) => {
     setIsOpen(false); // Tutup menu mobile setelah klik
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+
+    // Jika sedang di landing page, scroll ke section
+    if (location.pathname === "/") {
+      const element = document.getElementById(section);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Jika sedang di page lain, navigate ke landing page dengan hash
+      navigate(`/#${section}`);
+
+      // Setelah navigate, tunggu sebentar lalu scroll ke section
+      setTimeout(() => {
+        const element = document.getElementById(section);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  };
+
+  // Function untuk handle Home navigation
+  const handleHomeClick = () => {
+    setIsOpen(false);
+
+    // Jika sudah di landing page, scroll ke home section
+    if (location.pathname === "/") {
+      const element = document.getElementById("home");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Jika di page lain, navigate ke landing page
+      navigate("/");
     }
   };
 
   // Redirect ke landing page saat logo diklik
   const handleLogoClick = () => {
-    navigate("/");
     setIsOpen(false);
+
+    // Jika sudah di landing page, scroll ke home section
+    if (location.pathname === "/") {
+      const element = document.getElementById("home");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // Jika di page lain, navigate ke landing page
+      navigate("/");
+    }
   };
 
   // Redirect ke halaman login saat tombol login diklik
@@ -136,7 +179,7 @@ export const Navbar = () => {
           {/* Desktop Menu */}
           <nav className="hidden md:flex space-x-4 items-center">
             <button
-              onClick={() => handleNavClick("home")}
+              onClick={handleHomeClick}
               className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium cursor-pointer"
             >
               Home
@@ -192,7 +235,7 @@ export const Navbar = () => {
       {isOpen && (
         <div className="md:hidden bg-white shadow-md px-4 pb-4 space-y-2">
           <button
-            onClick={() => handleNavClick("home")}
+            onClick={handleHomeClick}
             className="block text-gray-700 hover:text-gray-900 py-2 text-sm font-medium cursor-pointer w-full text-left"
           >
             Home

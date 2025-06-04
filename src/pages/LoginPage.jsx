@@ -117,6 +117,9 @@ const LoginPage = () => {
         }
       }
 
+      // Trigger event untuk update navbar dan components lain
+      window.dispatchEvent(new Event("userLoggedIn"));
+
       // Redirect ke halaman utama
       navigate("/", { replace: true });
     } catch (error) {
