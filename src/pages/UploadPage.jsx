@@ -1,13 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  FaUpload,
-  FaFilePdf,
-  FaTimes,
-  FaFile,
-  FaCheck,
-  FaLightbulb,
-} from "react-icons/fa";
+import { FaUpload, FaFilePdf, FaTimes, FaFile, FaCheck } from "react-icons/fa";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { FaBoltLightning } from "react-icons/fa6";
