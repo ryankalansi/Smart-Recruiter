@@ -4,21 +4,21 @@ export const FeaturesSection = () => {
   const features = [
     {
       icon: <FaSearch className="h-6 w-6 text-blue-600" />,
-      title: "Skoring CV",
+      title: "Cv Scoring",
       description:
-        "Dapatkan skor komprehensif berdasarkan struktur,konten, dan kesesuaian CV Anda dengan standar industri",
+        "Get a comprehensive score based on the structure, content, and suitability of your CV to industry standards.",
     },
     {
       icon: <FaCheckCircle className="h-6 w-6 text-blue-600" />,
-      title: "Rekomendasi Pekerjaan",
+      title: "Job Recommendations",
       description:
-        "AI kami akan menyarankan posisi pekerjaan yang paling sesuai dengan keterampilan dan pengalaman Anda.",
+        "Our AI will suggest job positions that best match your skills and experience.",
     },
     {
       icon: <FaChartBar className="h-6 w-6 text-blue-600" />,
-      title: "Analisis Kecocokan",
+      title: "Compatibility Analysis",
       description:
-        "Ukur tingkat kecocokan CV Anda dengan deskripsi pekerjaan tertentu dan terima saran untuk peningkatan.",
+        "Measure how well your resume matches a specific job description and get suggestions for improvement.",
     },
   ];
 
@@ -26,7 +26,7 @@ export const FeaturesSection = () => {
     <section className="py-12 md:py-16" id="fitur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-2xl font-bold text-center text-gray-900 mb-12">
-          Fitur Unggulan
+          Key Features
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {features.map((feature, index) => (

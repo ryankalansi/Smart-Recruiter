@@ -10,33 +10,30 @@ export const Navbar = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Cek apakah user sudah login
+    // Check the user is already logged in
     const storedUser = localStorage.getItem("user");
-    // Hapus atau komentari log data sensitif
-    // console.log("Stored user from localStorage:", storedUser);
 
     if (storedUser && storedUser !== "undefined") {
       try {
         const parsedUser = JSON.parse(storedUser);
-        // Hapus atau komentari log data sensitif
-        // console.log("Parsed user data:", parsedUser);
+
         setUser(parsedUser);
       } catch (error) {
-        console.error("Error parsing user data:", error); // Tetap penting untuk debugging
-        // Bersihkan localStorage jika data rusak
+        console.error("Error parsing user data:", error); // Important for debugging
+        // Clear localStorage if data is corrupted
         localStorage.removeItem("user");
         localStorage.removeItem("token");
       }
     }
 
-    // Listen untuk perubahan localStorage (untuk real-time update)
+    // Listen for change localStorage (for real-time update)
     const handleStorageChange = () => {
       const updatedUser = localStorage.getItem("user");
       if (updatedUser && updatedUser !== "undefined") {
         try {
           setUser(JSON.parse(updatedUser));
         } catch (error) {
-          console.error("Error parsing updated user data:", error); // Tetap penting
+          console.error("Error parsing updated user data:", error); // Important for debugging
           setUser(null);
         }
       } else {
@@ -44,7 +41,7 @@ export const Navbar = () => {
       }
     };
 
-    // Listen untuk custom event yang kita trigger setelah login
+    // Listen for custom event which we trigger after logging in
     window.addEventListener("userLoggedIn", handleStorageChange);
 
     return () => {
@@ -61,9 +58,9 @@ export const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Function untuk handle navigation yang berbeda tergantung current page
+  // Function to handle different navigation depending on the current page
   const handleNavClick = (section) => {
-    setIsOpen(false); // Tutup menu mobile setelah klik
+    setIsOpen(false); // Close mobile menu after clicked
 
     // Jika sedang di landing page, scroll ke section
     if (location.pathname === "/") {
@@ -72,10 +69,10 @@ export const Navbar = () => {
         element.scrollIntoView({ behavior: "smooth" });
       }
     } else {
-      // Jika sedang di page lain, navigate ke landing page dengan hash
+      // If you are on another page, navigate to the landing page with hash
       navigate(`/#${section}`);
 
-      // Setelah navigate, tunggu sebentar lalu scroll ke section
+      // After navigating, wait a moment and then scroll to the section.
       setTimeout(() => {
         const element = document.getElementById(section);
         if (element) {
@@ -85,39 +82,39 @@ export const Navbar = () => {
     }
   };
 
-  // Function untuk handle Home navigation
+  // Function to handle Home navigation
   const handleHomeClick = () => {
     setIsOpen(false);
 
-    // Jika sudah di landing page, scroll ke home section
+    // Once you are on the landing page, scroll to the home section.
     if (location.pathname === "/") {
       const element = document.getElementById("home");
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
       }
     } else {
-      // Jika di page lain, navigate ke landing page
+      // If on another page, navigate to the landing page
       navigate("/");
     }
   };
 
-  // Redirect ke landing page saat logo diklik
+  // Redirect to landing page when logo is clicked
   const handleLogoClick = () => {
     setIsOpen(false);
 
-    // Jika sudah di landing page, scroll ke home section
+    // Once you are on the landing page, scroll to the home section.
     if (location.pathname === "/") {
       const element = document.getElementById("home");
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
       }
     } else {
-      // Jika di page lain, navigate ke landing page
+      // If on another page, navigate to the landing page
       navigate("/");
     }
   };
 
-  // Redirect ke halaman login saat tombol login diklik
+  // Redirect to the login page when the login button is clicked
   const handleLoginClick = () => {
     navigate("/login");
     setIsOpen(false);
@@ -129,11 +126,11 @@ export const Navbar = () => {
     localStorage.removeItem("token");
     setUser(null);
     setIsOpen(false);
-    // Refresh halaman untuk memastikan state ter-reset
+    // Refresh the page to ensure that the state is reset.
     window.location.reload();
   };
 
-  // Function untuk mendapatkan nama yang akan ditampilkan
+  // Function to get the name to be displayed
   const getDisplayName = () => {
     if (!user) return "";
 
@@ -142,7 +139,7 @@ export const Navbar = () => {
     }
 
     if (user.email) {
-      // Ambil bagian sebelum @ dari email sebagai fallback
+      // Take the part before @ from the email as a fallback
       return user.email.split("@")[0];
     }
 
@@ -188,13 +185,13 @@ export const Navbar = () => {
               onClick={() => handleNavClick("fitur")}
               className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium cursor-pointer"
             >
-              Fitur
+              Features
             </button>
             <button
               onClick={() => handleNavClick("kontak")}
               className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium cursor-pointer"
             >
-              Kontak
+              Contact
             </button>
 
             {user ? (
@@ -244,13 +241,13 @@ export const Navbar = () => {
             onClick={() => handleNavClick("fitur")}
             className="block text-gray-700 hover:text-gray-900 py-2 text-sm font-medium cursor-pointer w-full text-left"
           >
-            Fitur
+            Features
           </button>
           <button
             onClick={() => handleNavClick("kontak")}
             className="block text-gray-700 hover:text-gray-900 py-2 text-sm font-medium cursor-pointer w-full text-left"
           >
-            Kontak
+            Contact
           </button>
 
           {user ? (

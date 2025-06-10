@@ -7,7 +7,7 @@ export const CTASection = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    //  Cek jika user login
+    //  Check if user is logged in
     const storedUser = localStorage.getItem("user");
     if (storedUser && storedUser !== "undefined") {
       try {
@@ -46,17 +46,17 @@ export const CTASection = () => {
     if (!user) {
       setShowLoginAlert(true);
 
-      // Auto hide alert setelah 3 detik
+      // Auto hide alert after 3 seconds
       setTimeout(() => {
         setShowLoginAlert(false);
       }, 3000);
 
-      // Redirect ke login setelah muncul alert
+      // Redirect to login after showing alert
       setTimeout(() => {
         navigate("/login");
       }, 1500);
     } else {
-      // jika user sudah login, arahkan ke upload page
+      // If the user is already logged in, redirect them to the upload page.
       navigate("/upload");
     }
   };
@@ -65,18 +65,17 @@ export const CTASection = () => {
     <section className="bg-blue-600 py-12 md:py-16 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-2xl font-bold text-white mb-4">
-          Siap Meningkatkan CV anda?
+          Ready to improve your CV?
         </h2>
         <p className="text-blue-100 mb-8">
-          Biarkan AI kami membantu Anda mendapatkan pekerjaan impian dengan CV
-          yang optimal
+          Let our AI help you land your dream job with an optimized resume.
         </p>
 
         {/* Login Alert */}
         {showLoginAlert && (
           <div className="mb-6 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg inline-block">
             <p className="text-sm font-medium">
-              Silakan login terlebih dahulu untuk menggunakan layanan kami
+              Please log in first to use our services.
             </p>
           </div>
         )}
@@ -85,7 +84,7 @@ export const CTASection = () => {
           onClick={handleCTAClick}
           className="bg-white text-blue-600 hover:bg-blue-50 font-medium py-3 px-8 rounded-md cursor-pointer transition-colors"
         >
-          Mulai Sekarang - Gratis!
+          Start Now - Free!
         </button>
       </div>
     </section>

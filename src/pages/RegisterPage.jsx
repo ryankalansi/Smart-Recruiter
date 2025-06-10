@@ -33,25 +33,25 @@ const RegisterPage = () => {
     const newErrors = {};
 
     if (!formData.fullName.trim()) {
-      newErrors.fullName = "Nama lengkap harus diisi";
+      newErrors.fullName = "Full name must be filled in";
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email harus diisi";
+      newErrors.email = "Email must be filled in";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Format email tidak valid";
+      newErrors.email = "Invalid email format";
     }
 
     if (!formData.password) {
-      newErrors.password = "Password harus diisi";
+      newErrors.password = "Password must be filled in";
     } else if (formData.password.length < 8) {
-      newErrors.password = "Password minimal 8 karakter";
+      newErrors.password = "Password must be at least 8 characters";
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Konfirmasi password harus diisi";
+      newErrors.confirmPassword = "Confirm password must be filled in";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Password tidak cocok";
+      newErrors.confirmPassword = "Password does not match";
     }
 
     return newErrors;
@@ -67,29 +67,23 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      // Hapus atau komentari log data sensitif
-      // console.log("Sending data:", {
-      //   name: formData.fullName,
-      //   email: formData.email,
-      //   password: formData.password, // TIDAK PERNAH log password!
-      // });
-
-      const response = await fetch("http://localhost:3000/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      // console.log("Response status:", response.status); // Ini bisa tetap ada jika tidak terlalu verbose
+      const response = await fetch(
+        "https://smart-recruiter-five.vercel.app/api/auth/signup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData.fullName,
+            email: formData.email,
+            password: formData.password,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        let errorMessage = "Registrasi gagal";
+        let errorMessage = "Registration failed";
 
         try {
           const result = await response.json();
@@ -105,33 +99,28 @@ const RegisterPage = () => {
       let result;
       try {
         result = await response.json();
-        // Hapus atau komentari log data sensitif
-        // console.log("Response body:", result);
       } catch (jsonError) {
         console.error("Error parsing JSON:", jsonError);
         throw new Error("Invalid response from server");
       }
 
-      // Hapus atau komentari log data sensitif
-      // console.log("Registrasi berhasil:", result);
-
-      // Simpan token jika ada
+      // Save token if available
       if (result.token) {
         localStorage.setItem("token", result.token);
       }
 
-      // Redirect ke login dengan pesan sukses
+      // Redirect to login with success message
       navigate("/login", {
         state: {
-          message: "Registrasi berhasil! Silakan login dengan akun anda.",
+          message: "Registration successful! Please login with your account.",
         },
       });
     } catch (error) {
-      console.error("Registration error:", error); // Tetap penting untuk debugging error
+      console.error("Registration error:", error); // important for debugging
       setErrors({
         general:
           error.message ||
-          "Terjadi kesalahan saat mendaftar. Silakan coba lagi.",
+          "An error occurred during registration. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -151,10 +140,10 @@ const RegisterPage = () => {
       {/* Back to Home Button */}
       <button
         onClick={goToHome}
-        className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+        className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
       >
-        <HiArrowLeft className="w-5 h-5 mr-2" />
-        Kembali ke Beranda
+        <HiArrowLeft className="w-5 h-5 mr-2 " />
+        Back to Home
       </button>
 
       {/* Background decoration */}
@@ -170,11 +159,9 @@ const RegisterPage = () => {
             <HiUser className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            Buat Akun Baru
+            Create a New Account
           </h1>
-          <p className="text-gray-600 text-sm">
-            Bergabung dan analisis CV dengan AI
-          </p>
+          <p className="text-gray-600 text-sm">Join and analyze CV with AI</p>
         </div>
 
         {/* General Error Message */}
@@ -189,14 +176,14 @@ const RegisterPage = () => {
           {/* Full Name Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Nama Lengkap
+              Full Name
             </label>
             <input
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleInputChange}
-              placeholder="Masukkan nama lengkap Anda"
+              placeholder="Enter your full name"
               className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
                 errors.fullName ? "border-red-300" : "border-gray-200"
               }`}
@@ -217,7 +204,7 @@ const RegisterPage = () => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              placeholder="Masukkan email Anda"
+              placeholder="Enter your email"
               className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all ${
                 errors.email ? "border-red-300" : "border-gray-200"
               }`}
@@ -239,7 +226,7 @@ const RegisterPage = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                placeholder="Minimal 8 karakter"
+                placeholder="Minimum 8 characters"
                 className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all pr-12 ${
                   errors.password ? "border-red-300" : "border-gray-200"
                 }`}
@@ -252,9 +239,9 @@ const RegisterPage = () => {
                 disabled={isLoading}
               >
                 {showPassword ? (
-                  <HiEyeOff className="w-5 h-5" />
+                  <HiEyeOff className="w-5 h-5 cursor-pointer" />
                 ) : (
-                  <HiEye className="w-5 h-5" />
+                  <HiEye className="w-5 h-5 cursor-pointer" />
                 )}
               </button>
             </div>
@@ -266,7 +253,7 @@ const RegisterPage = () => {
           {/* Confirm Password Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Konfirmasi Password
+              Confirm Password
             </label>
             <div className="relative">
               <input
@@ -274,7 +261,7 @@ const RegisterPage = () => {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                placeholder="Ulangi password Anda"
+                placeholder="Repeat your password"
                 className={`w-full px-4 py-3 bg-gray-50 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all pr-12 ${
                   errors.confirmPassword ? "border-red-300" : "border-gray-200"
                 }`}
@@ -287,9 +274,9 @@ const RegisterPage = () => {
                 disabled={isLoading}
               >
                 {showConfirmPassword ? (
-                  <HiEyeOff className="w-5 h-5" />
+                  <HiEyeOff className="w-5 h-5 cursor-pointer" />
                 ) : (
-                  <HiEye className="w-5 h-5" />
+                  <HiEye className="w-5 h-5 cursor-pointer" />
                 )}
               </button>
             </div>
@@ -304,15 +291,15 @@ const RegisterPage = () => {
           <button
             onClick={handleRegister}
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-4 rounded-lg transition-colors mt-6 flex items-center justify-center"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-4 rounded-lg transition-colors mt-6 flex items-center justify-center cursor-pointer"
           >
             {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Mendaftar...
+                Registering...
               </>
             ) : (
-              "Daftar Sekarang"
+              "Register Now"
             )}
           </button>
         </div>
@@ -320,13 +307,13 @@ const RegisterPage = () => {
         {/* Login Link */}
         <div className="text-center mt-6 pt-6 border-t border-gray-200">
           <p className="text-gray-600 text-sm">
-            Sudah punya akun?{" "}
+            Already have an account?{" "}
             <button
               onClick={switchToLogin}
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
               disabled={isLoading}
             >
-              Masuk
+              Login
             </button>
           </p>
         </div>

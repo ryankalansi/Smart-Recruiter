@@ -3,24 +3,24 @@ export const HowItWorksSection = () => {
     {
       number: 1,
       title: "Upload",
-      description: "Upload CV Anda dalam bentuk format PDF",
+      description: "Upload your CV in PDF format",
     },
     {
       number: 2,
-      title: "Analisis AI",
-      description: "Model AI kami menganalisis konten, format, dan relevansi",
+      title: "AI Analysis",
+      description: "Our AI model analyzes content, format, and relevance",
     },
     {
       number: 3,
-      title: "Hasil",
-      description: "Dapatkan laporan lengkap dengan saran peningkatan",
+      title: "Results",
+      description: "Get a comprehensive report with improvement suggestions",
     },
   ];
 
   return (
     <section className="py-16 px-4 bg-white">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-20">Cara Kerja</h2>
+        <h2 className="text-3xl font-bold text-center mb-20">How It Works</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 realtive">
           {steps.map((step, index) => (

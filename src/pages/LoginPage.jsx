@@ -14,7 +14,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Cek apakah ada pesan sukses dari registrasi
+  // Check if there is a successfull message from registration
   useEffect(() => {
     if (location.state?.message) {
       setSuccessMessage(location.state.message);
@@ -33,31 +33,29 @@ const LoginPage = () => {
     e.preventDefault();
 
     if (!formData.email || !formData.password) {
-      setError("Email dan password harus diisi");
+      setError("Email and password must be filed in");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Hapus atau komentari log data sensitif
-      // console.log("Attempting login with:", { email: formData.email });
-
-      const response = await fetch("http://localhost:3000/api/auth/signin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      // console.log("Response status:", response.status); // Boleh tetap ada
+      const response = await fetch(
+        "https://smart-recruiter-five.vercel.app/api/auth/signin",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        let errorMessage = "Login gagal";
+        let errorMessage = "Login failed";
 
         try {
           const errorData = await response.json();
@@ -73,42 +71,36 @@ const LoginPage = () => {
       let data;
       try {
         data = await response.json();
-        // Hapus atau komentari log data sensitif
-        // console.log("Login berhasil:", data);
       } catch (jsonError) {
         console.error("Error parsing success JSON:", jsonError);
         throw new Error("Invalid response from server");
       }
 
-      // Simpan token
+      // Save token
       if (data.data) {
         localStorage.setItem("token", data.data);
       }
 
-      // Decode JWT untuk mendapatkan user info
+      // Decode JWT to get user info
       if (data.data) {
         try {
           // Decode JWT payload (base64)
           const tokenParts = data.data.split(".");
           if (tokenParts.length === 3) {
             const payload = JSON.parse(atob(tokenParts[1]));
-            // Hapus atau komentari log data sensitif
-            // console.log("Decoded token payload:", payload);
 
-            // Simpan user data dari token
+            // Save user info from token
             const userData = {
               email: payload.email,
-              name: payload.name || payload.email.split("@")[0], // fallback jika tidak ada name
+              name: payload.name || payload.email.split("@")[0], // fallback if there is no name
               id: payload.id || payload.userId,
             };
 
             localStorage.setItem("user", JSON.stringify(userData));
-            // Hapus atau komentari log data sensitif
-            // console.log("User data saved:", userData);
           }
         } catch (tokenError) {
-          console.error("Error decoding token:", tokenError); // Tetap penting untuk debugging
-          // Fallback: simpan email saja jika ada masalah dengan token
+          console.error("Error decoding token:", tokenError); // Important for debugging
+          // Fallback: just save the email if there is a problem with the token
           const fallbackUser = {
             email: formData.email,
             name: formData.email.split("@")[0],
@@ -117,15 +109,15 @@ const LoginPage = () => {
         }
       }
 
-      // Trigger event untuk update navbar dan components lain
+      // Trigger event for update navbar and other components
       window.dispatchEvent(new Event("userLoggedIn"));
 
-      // Redirect ke halaman utama
+      // Redirect to main page
       navigate("/", { replace: true });
     } catch (error) {
-      console.error("Login error:", error); // Tetap penting untuk debugging error
+      console.error("Login error:", error); // Important for debugging
       setError(
-        error.message || "Terjadi kesalahan saat login, silakan coba lagi."
+        error.message || "An error occurred during login. Please try again."
       );
     } finally {
       setIsLoading(false);
@@ -142,13 +134,13 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      {/* kembali ke halaman utama */}
+      {/* Back to home */}
       <button
         onClick={goToHome}
-        className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+        className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-gray-800 transition-colors cursor-pointer"
       >
-        <HiArrowLeft className="w-5 h-5 mr-2" />
-        Kembali ke Beranda
+        <HiArrowLeft className="w-5 h-5 mr-2 " />
+        Back to Home
       </button>
 
       {/* Background */}
@@ -164,10 +156,10 @@ const LoginPage = () => {
             <HiLockClosed className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            Masuk ke Smart Recruiter
+            Login to Smart Recruiter
           </h1>
           <p className="text-gray-600 text-sm">
-            Analisis CV dengan kekuatan AI
+            CV analysis with the power of AI
           </p>
         </div>
 
@@ -197,7 +189,7 @@ const LoginPage = () => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              placeholder="Masukkan email Anda"
+              placeholder="Enter your email address"
               className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
               disabled={isLoading}
               required
@@ -215,7 +207,7 @@ const LoginPage = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                placeholder="Masukkan password Anda"
+                placeholder="Enter your password"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all pr-12"
                 disabled={isLoading}
                 required
@@ -227,9 +219,9 @@ const LoginPage = () => {
                 disabled={isLoading}
               >
                 {showPassword ? (
-                  <HiEyeOff className="w-5 h-5" />
+                  <HiEyeOff className="w-5 h-5 cursor-pointer" />
                 ) : (
-                  <HiEye className="w-5 h-5" />
+                  <HiEye className="w-5 h-5 cursor-pointer" />
                 )}
               </button>
             </div>
@@ -239,12 +231,12 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center cursor-pointer"
           >
             {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Masuk...
+                Login...
               </>
             ) : (
               "Login"
@@ -252,23 +244,16 @@ const LoginPage = () => {
           </button>
         </form>
 
-        {/* Forgot Password */}
-        <div className="text-center mt-4">
-          <button className="text-blue-600 hover:text-blue-700 text-sm">
-            Lupa password?
-          </button>
-        </div>
-
         {/* Register Link */}
-        <div className="text-center mt-6 pt-6 border-t border-gray-200">
+        <div className="text-center mt-6 pt-6 border-t border-gray-200 ">
           <p className="text-gray-600 text-sm">
-            Belum punya akun?{" "}
+            Don't have an account yet?{" "}
             <button
               onClick={switchToRegister}
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
               disabled={isLoading}
             >
-              Daftar sekarang
+              Register now
             </button>
           </p>
         </div>

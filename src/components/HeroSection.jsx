@@ -9,7 +9,7 @@ export const HeroSection = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Cek jika user login
+    // Check if user is logged in
     const storedUser = localStorage.getItem("user");
     if (storedUser && storedUser !== "undefined") {
       try {
@@ -50,17 +50,17 @@ export const HeroSection = () => {
       e.preventDefault();
       setShowLoginAlert(true);
 
-      // Auto hide alert setelah 3 detik
+      // Auto hide alert after 3 seconds
       setTimeout(() => {
         setShowLoginAlert(false);
       }, 3000);
 
-      // Redirect ke login setelah menampilkan alert
+      // Redirect to login after showing alert
       setTimeout(() => {
         navigate("/login");
       }, 1500);
     } else {
-      // jika user sudah login, arahkan ke upload page
+      // If the user is already logged in, redirect  to the upload page.
       navigate("/upload");
     }
   };
@@ -70,19 +70,19 @@ export const HeroSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center">
         <div className="md:w-1/2 mb-8 md:mb-0">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Sistem Evaluasi CV Otomatis Berbasis AI
+            AI-Based Automatic CV Evaluation System
           </h1>
           <p className="text-lg text-gray-600 mb-6">
-            Tingkatkan peluang karir Anda dengan analisis CV berbasis AI.
-            Dapatkan skor, rekomendasi perbaikan, dan temukan pekerjaan yang
-            cocok untuk kualifikasi Anda.
+            Boost your career prospects with AI-based CV analysis. Get a score,
+            improvement recommendations, and find jobs that match your
+            qualifications.
           </p>
 
           {/* Login Alert */}
           {showLoginAlert && (
             <div className="mb-4 bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg">
               <p className="text-sm font-medium">
-                Silakan login terlebih dahulu untuk mengupload CV Anda
+                Please log in first to upload your CV.
               </p>
             </div>
           )}
@@ -92,7 +92,7 @@ export const HeroSection = () => {
             onClick={handleUploadClick}
             className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-md text-sm transition-colors"
           >
-            Upload CV sekarang
+            Upload CV now
             <FaUpload className="ml-2 w-4 h-4" />
           </Link>
         </div>

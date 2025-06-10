@@ -13,8 +13,8 @@ export const Footer = () => {
               Smart Recruiter
             </h3>
             <p className="text-gray-400 text-sm mb-4 max-w-xs">
-              Solusi analisis CV berbasis AI untuk meningkatkan peluang karir
-              Anda.
+              AI-based CV analysis solution to improve your career
+              opportunities.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-white">
@@ -33,12 +33,12 @@ export const Footer = () => {
           </div>
           <div>
             <h4 className="text-sm font-semibold uppercase tracking-wider mb-4">
-              Kontak
+              Contact
             </h4>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>Email: info@aismartrecruiter.com</li>
-              <li>Telepon: +62 123 456 7890</li>
-              <li>Alamat: Jl. Teknologi No. 123, Jakarta</li>
+              <li>Telephone: +62 123 456 7890</li>
+              <li>Address: Jl. Teknologi No. 123, Jakarta</li>
             </ul>
           </div>
           <div>
@@ -48,17 +48,17 @@ export const Footer = () => {
             <ul className="space-y-2 text-sm">
               <li>
                 <a href="#" className="text-gray-400 hover:text-white">
-                  Tentang Kami
+                  About Us
                 </a>
               </li>
               <li>
                 <a href="#" className="text-gray-400 hover:text-white">
-                  Kebijakan Privasi
+                  Privacy Policy
                 </a>
               </li>
               <li>
                 <a href="#" className="text-gray-400 hover:text-white">
-                  Syarat & Ketentuan
+                  Terms & Conditions
                 </a>
               </li>
               <li>
@@ -70,7 +70,7 @@ export const Footer = () => {
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-6 text-sm text-gray-400 text-center">
-          © 2025 AI Smart Recruiter. Seluruh hak cipta dilindungi.
+          © 2025 AI Smart Recruiter. All rights reserved.
         </div>
       </div>
     </footer>
