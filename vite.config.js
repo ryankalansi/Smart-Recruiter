@@ -9,15 +9,14 @@ export default defineConfig({
   server: {
     port: 5150,
   },
-  // --- Tambahkan bagian 'build' ini ---
+
   build: {
-    minify: "terser", // Memastikan Terser digunakan sebagai minifier
+    minify: "terser",
     terserOptions: {
       compress: {
-        drop_console: true, // Ini yang akan menghapus console.log di build produksi
-        drop_debugger: true, // (Opsional) Ini akan menghapus debugger statement
+        drop_console: true,
+        drop_debugger: true,
       },
     },
   },
-  // ------------------------------------
 });
