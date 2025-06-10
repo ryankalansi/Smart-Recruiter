@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FaUpload } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import womanSmiling from "../assets/woman-smiling.jpg";
+import laptop from "../assets/laptop.png";
 
 export const HeroSection = () => {
   const [user, setUser] = useState(null);
@@ -99,7 +99,7 @@ export const HeroSection = () => {
         <div className="md:w-1/2 flex justify-center">
           <div className="w-full max-w-md relative">
             <img
-              src={womanSmiling}
+              src={laptop}
               alt="woman smiling"
               className="w-full rounded-lg shadow-lg"
             />
