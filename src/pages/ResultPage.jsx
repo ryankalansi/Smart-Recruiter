@@ -36,64 +36,142 @@ const ResultPage = () => {
     }
   }, [navigate]);
 
-  // Load analysis result from localStorage
+  // Fetch analysis result from API
   useEffect(() => {
     if (!user) return;
 
-    try {
-      const storedResult = localStorage.getItem("cvAnalysisResult");
+    const fetchAnalysisResult = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
 
-      if (!storedResult) {
-        setError(
-          "No analysis result found. Please upload and analyze your CV first."
+        // Coba ambil dari API dulu
+        const response = await fetch(
+          "https://be-dicoding-cv-o8hg.vercel.app/api/cvs/upload",
+          {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
         );
+
+        let data = null;
+
+        if (response.ok) {
+          // Jika API berhasil, gunakan data dari API
+          data = await response.json();
+          console.log("Data from API:", data);
+
+          // Simpan data terbaru ke localStorage sebagai backup
+          localStorage.setItem("cvAnalysisResult", JSON.stringify(data));
+        } else {
+          // Jika API gagal, fallback ke localStorage
+          console.log("API failed, using localStorage fallback");
+          const storedResult = localStorage.getItem("cvAnalysisResult");
+
+          if (!storedResult) {
+            setError(
+              "No analysis result found. Please upload and analyze your CV first."
+            );
+            setLoading(false);
+            return;
+          }
+
+          data = JSON.parse(storedResult);
+          console.log("Data from localStorage:", data);
+        }
+
+        // Validate that we have the required data
+        if (!data || typeof data !== "object") {
+          setError(
+            "Invalid analysis result data. Please try uploading your CV again."
+          );
+          setLoading(false);
+          return;
+        }
+
+        // Transform the data to match component structure
+        const transformedResult = {
+          resumeScore: data.matchScore || 0,
+          jobRecommendations: Array.isArray(data.jobRecommendation)
+            ? data.jobRecommendation.map((job) => ({
+                title: job.title || job.name || "Position not specified",
+                description:
+                  job.description || job.reason || "No description available",
+              }))
+            : [],
+          tips: Array.isArray(data.fixCv)
+            ? data.fixCv.map((tip, index) => ({
+                icon: getTipIcon(index),
+                title:
+                  tip.title || tip.category || `Improvement Tip ${index + 1}`,
+                description:
+                  tip.description ||
+                  tip.suggestion ||
+                  "No description available",
+                example: tip.example || tip.badExample || tip.goodExample || "",
+              }))
+            : [],
+        };
+
+        console.log("Transformed result:", transformedResult);
+        setAnalysisResult(transformedResult);
         setLoading(false);
-        return;
-      }
+      } catch (error) {
+        console.error("Error fetching analysis result:", error);
 
-      const data = JSON.parse(storedResult);
-      console.log("Analysis Result Data:", data);
+        // Fallback ke localStorage jika terjadi error
+        try {
+          const storedResult = localStorage.getItem("cvAnalysisResult");
+          if (storedResult) {
+            const data = JSON.parse(storedResult);
+            const transformedResult = {
+              resumeScore: data.matchScore || 0,
+              jobRecommendations: Array.isArray(data.jobRecommendation)
+                ? data.jobRecommendation.map((job) => ({
+                    title: job.title || job.name || "Position not specified",
+                    description:
+                      job.description ||
+                      job.reason ||
+                      "No description available",
+                  }))
+                : [],
+              tips: Array.isArray(data.fixCv)
+                ? data.fixCv.map((tip, index) => ({
+                    icon: getTipIcon(index),
+                    title:
+                      tip.title ||
+                      tip.category ||
+                      `Improvement Tip ${index + 1}`,
+                    description:
+                      tip.description ||
+                      tip.suggestion ||
+                      "No description available",
+                    example:
+                      tip.example || tip.badExample || tip.goodExample || "",
+                  }))
+                : [],
+            };
+            setAnalysisResult(transformedResult);
+          } else {
+            setError(
+              "Failed to load analysis result. Please try uploading your CV again."
+            );
+          }
+        } catch (fallbackError) {
+          console.error("Fallback error:", fallbackError);
+          setError(
+            "Failed to load analysis result. Please try uploading your CV again."
+          );
+        }
 
-      // Validate that we have the required data
-      if (!data || typeof data !== "object") {
-        setError(
-          "Invalid analysis result data. Please try uploading your CV again."
-        );
         setLoading(false);
-        return;
       }
+    };
 
-      // Transform the data to match component structure
-      const transformedResult = {
-        resumeScore: data.matchScore || 0,
-        jobRecommendations: Array.isArray(data.jobRecommendation)
-          ? data.jobRecommendation.map((job) => ({
-              title: job.title || job.name || "Position not specified",
-              description:
-                job.description || job.reason || "No description available",
-            }))
-          : [],
-        tips: Array.isArray(data.fixCv)
-          ? data.fixCv.map((tip, index) => ({
-              icon: getTipIcon(index),
-              title:
-                tip.title || tip.category || `Improvement Tip ${index + 1}`,
-              description:
-                tip.description || tip.suggestion || "No description available",
-              example: tip.example || tip.badExample || tip.goodExample || "",
-            }))
-          : [],
-      };
-
-      setAnalysisResult(transformedResult);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error loading analysis result:", error);
-      setError(
-        "Failed to load analysis result. Please try uploading your CV again."
-      );
-      setLoading(false);
-    }
+    fetchAnalysisResult();
   }, [user]);
 
   // Helper function to get tip icons
