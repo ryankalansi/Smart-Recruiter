@@ -133,9 +133,9 @@ const UploadPage = () => {
         formData.append("userId", user.id);
       }
 
-      // console.log("Uploading to API...");
-      // console.log("Applied Job:", appliedJob);
-      // console.log("File:", selectedFile.name);
+      console.log("Uploading to API...");
+      console.log("Applied Job:", appliedJob);
+      console.log("File:", selectedFile.name);
 
       const response = await fetch(
         "https://be-dicoding-cv-o8hg.vercel.app/api/cvs/upload",
