@@ -45,7 +45,12 @@ const ResultPage = () => {
         setLoading(true);
         const token = localStorage.getItem("token");
 
-        // Coba ambil dari API dulu
+        console.log("=== DEBUGGING START ===");
+        console.log("User data:", user);
+        console.log("Token:", token ? "Token exists" : "No token");
+        console.log("Fetching analysis result from API...");
+
+        // API Endpoint
         const response = await fetch(
           "https://be-dicoding-cv-o8hg.vercel.app/api/cvs/upload",
           {
@@ -57,84 +62,189 @@ const ResultPage = () => {
           }
         );
 
-        let data = null;
+        console.log("API Response status:", response.status);
+        console.log("API Response headers:", response.headers);
 
-        if (response.ok) {
-          // Jika API berhasil, gunakan data dari API
-          data = await response.json();
-          console.log("Data from API:", data);
-
-          // Simpan data terbaru ke localStorage sebagai backup
-          localStorage.setItem("cvAnalysisResult", JSON.stringify(data));
-        } else {
-          // Jika API gagal, fallback ke localStorage
-          console.log("API failed, using localStorage fallback");
-          const storedResult = localStorage.getItem("cvAnalysisResult");
-
-          if (!storedResult) {
-            setError(
-              "No analysis result found. Please upload and analyze your CV first."
-            );
-            setLoading(false);
-            return;
-          }
-
-          data = JSON.parse(storedResult);
-          console.log("Data from localStorage:", data);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.log("Error response text:", errorText);
+          throw new Error(
+            `HTTP error! status: ${response.status}, message: ${errorText}`
+          );
         }
+
+        const apiResult = await response.json();
+        console.log("=== RAW API RESPONSE ===");
+        console.log(JSON.stringify(apiResult, null, 2));
+        console.log("=== END RAW RESPONSE ===");
+
+        // Pastikan struktur data sesuai dengan yang dikirim BE
+        let data = apiResult;
+
+        // Debug: cek berbagai kemungkinan struktur response
+        console.log("=== CHECKING DATA STRUCTURE ===");
+        console.log("apiResult.data:", apiResult.data);
+        console.log("apiResult.result:", apiResult.result);
+        console.log("apiResult.cv:", apiResult.cv);
+        console.log("apiResult.analysis:", apiResult.analysis);
+        console.log("Is apiResult an array?", Array.isArray(apiResult));
+
+        // Coba berbagai kemungkinan struktur
+        if (apiResult.data) {
+          data = apiResult.data;
+          console.log("Using apiResult.data");
+        } else if (apiResult.result) {
+          data = apiResult.result;
+          console.log("Using apiResult.result");
+        } else if (apiResult.cv) {
+          data = apiResult.cv;
+          console.log("Using apiResult.cv");
+        } else if (apiResult.analysis) {
+          data = apiResult.analysis;
+          console.log("Using apiResult.analysis");
+        }
+
+        // Jika response berupa array, ambil yang terbaru (index 0)
+        if (Array.isArray(data) && data.length > 0) {
+          console.log("Data is array, taking first item");
+          data = data[0];
+        }
+
+        console.log("=== FINAL PROCESSED DATA ===");
+        console.log(JSON.stringify(data, null, 2));
+        console.log("=== END PROCESSED DATA ===");
 
         // Validate that we have the required data
         if (!data || typeof data !== "object") {
-          setError(
-            "Invalid analysis result data. Please try uploading your CV again."
-          );
-          setLoading(false);
-          return;
+          throw new Error("Invalid data structure from API");
         }
+
+        // Debug: cek semua kemungkinan property matchScore
+        console.log("=== CHECKING MATCH SCORE PROPERTIES ===");
+        console.log("data.matchScore:", data.matchScore);
+        console.log("data.match_score:", data.match_score);
+        console.log("data.score:", data.score);
+        console.log("data.Match_Score:", data.Match_Score);
+        console.log("data.MATCH_SCORE:", data.MATCH_SCORE);
+        console.log("=== END MATCH SCORE CHECK ===");
 
         // Transform the data to match component structure
         const transformedResult = {
-          resumeScore: data.matchScore || 0,
+          resumeScore:
+            data.matchScore ??
+            data.match_score ??
+            data.score ??
+            data.Match_Score ??
+            data.MATCH_SCORE ??
+            0,
           jobRecommendations: Array.isArray(data.jobRecommendation)
             ? data.jobRecommendation.map((job) => ({
-                title: job.title || job.name || "Position not specified",
+                title:
+                  job.title ||
+                  job.name ||
+                  job.position ||
+                  "Position not specified",
                 description:
-                  job.description || job.reason || "No description available",
+                  job.description ||
+                  job.reason ||
+                  job.details ||
+                  "No description available",
+              }))
+            : Array.isArray(data.job_recommendation)
+            ? data.job_recommendation.map((job) => ({
+                title:
+                  job.title ||
+                  job.name ||
+                  job.position ||
+                  "Position not specified",
+                description:
+                  job.description ||
+                  job.reason ||
+                  job.details ||
+                  "No description available",
               }))
             : [],
           tips: Array.isArray(data.fixCv)
             ? data.fixCv.map((tip, index) => ({
                 icon: getTipIcon(index),
                 title:
-                  tip.title || tip.category || `Improvement Tip ${index + 1}`,
+                  tip.title ||
+                  tip.category ||
+                  tip.type ||
+                  `Improvement Tip ${index + 1}`,
                 description:
                   tip.description ||
                   tip.suggestion ||
+                  tip.fix ||
+                  "No description available",
+                example: tip.example || tip.badExample || tip.goodExample || "",
+              }))
+            : Array.isArray(data.fix_cv)
+            ? data.fix_cv.map((tip, index) => ({
+                icon: getTipIcon(index),
+                title:
+                  tip.title ||
+                  tip.category ||
+                  tip.type ||
+                  `Improvement Tip ${index + 1}`,
+                description:
+                  tip.description ||
+                  tip.suggestion ||
+                  tip.fix ||
                   "No description available",
                 example: tip.example || tip.badExample || tip.goodExample || "",
               }))
             : [],
         };
 
-        console.log("Transformed result:", transformedResult);
+        console.log("=== FINAL TRANSFORMED RESULT ===");
+        console.log(JSON.stringify(transformedResult, null, 2));
+        console.log("Resume Score:", transformedResult.resumeScore);
+        console.log("=== END TRANSFORMED RESULT ===");
+
+        // Simpan ke localStorage sebagai backup
+        localStorage.setItem("cvAnalysisResult", JSON.stringify(data));
+
         setAnalysisResult(transformedResult);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching analysis result:", error);
+        console.error("Error fetching from API:", error);
 
-        // Fallback ke localStorage jika terjadi error
+        // Fallback ke localStorage jika API gagal
         try {
+          console.log("Trying localStorage fallback...");
           const storedResult = localStorage.getItem("cvAnalysisResult");
+
           if (storedResult) {
             const data = JSON.parse(storedResult);
+            console.log("Data from localStorage:", data);
+
             const transformedResult = {
-              resumeScore: data.matchScore || 0,
+              resumeScore: data.matchScore ?? data.match_score ?? 0,
               jobRecommendations: Array.isArray(data.jobRecommendation)
                 ? data.jobRecommendation.map((job) => ({
-                    title: job.title || job.name || "Position not specified",
+                    title:
+                      job.title ||
+                      job.name ||
+                      job.position ||
+                      "Position not specified",
                     description:
                       job.description ||
                       job.reason ||
+                      job.details ||
+                      "No description available",
+                  }))
+                : Array.isArray(data.job_recommendation)
+                ? data.job_recommendation.map((job) => ({
+                    title:
+                      job.title ||
+                      job.name ||
+                      job.position ||
+                      "Position not specified",
+                    description:
+                      job.description ||
+                      job.reason ||
+                      job.details ||
                       "No description available",
                   }))
                 : [],
@@ -144,20 +254,39 @@ const ResultPage = () => {
                     title:
                       tip.title ||
                       tip.category ||
+                      tip.type ||
                       `Improvement Tip ${index + 1}`,
                     description:
                       tip.description ||
                       tip.suggestion ||
+                      tip.fix ||
+                      "No description available",
+                    example:
+                      tip.example || tip.badExample || tip.goodExample || "",
+                  }))
+                : Array.isArray(data.fix_cv)
+                ? data.fix_cv.map((tip, index) => ({
+                    icon: getTipIcon(index),
+                    title:
+                      tip.title ||
+                      tip.category ||
+                      tip.type ||
+                      `Improvement Tip ${index + 1}`,
+                    description:
+                      tip.description ||
+                      tip.suggestion ||
+                      tip.fix ||
                       "No description available",
                     example:
                       tip.example || tip.badExample || tip.goodExample || "",
                   }))
                 : [],
             };
+
             setAnalysisResult(transformedResult);
           } else {
             setError(
-              "Failed to load analysis result. Please try uploading your CV again."
+              "No analysis result found. Please upload and analyze your CV first."
             );
           }
         } catch (fallbackError) {
