@@ -92,7 +92,7 @@ const UploadPage = () => {
     }
   };
 
-  // Delete selected file
+  // Delet selected file
   const removeFile = () => {
     setSelectedFile(null);
     setError("");
@@ -128,15 +128,14 @@ const UploadPage = () => {
       formData.append("cv", selectedFile);
       formData.append("appliedJob", appliedJob);
 
-      // if backend need userId
+      // if backend neet userId
       if (user?.id) {
         formData.append("userId", user.id);
       }
 
-      console.log("=== UPLOAD REQUEST ===");
-      console.log("Applied Job:", appliedJob);
-      console.log("File:", selectedFile.name);
-      console.log("User ID:", user?.id);
+      // console.log("Uploading to API...");
+      // console.log("Applied Job:", appliedJob);
+      // console.log("File:", selectedFile.name);
 
       const response = await fetch(
         "https://be-dicoding-cv-o8hg.vercel.app/api/cvs/upload",
@@ -167,91 +166,7 @@ const UploadPage = () => {
       }
 
       const result = await response.json();
-
-      console.log("=== UPLOAD SUCCESSFUL ===");
-      console.log("Full Response:", result);
-
-      // Log CV parsing data if available
-      if (result.cvData) {
-        console.log("=== CV PARSING RESULTS ===");
-        console.log("CV Data:", result.cvData);
-
-        if (result.cvData.name) {
-          console.log("👤 Name:", result.cvData.name);
-        }
-
-        if (result.cvData.jobTitle) {
-          console.log("💼 Job Title:", result.cvData.jobTitle);
-        }
-
-        if (result.cvData.educations && result.cvData.educations.length > 0) {
-          console.log("🎓 Education:");
-          result.cvData.educations.forEach((edu, index) => {
-            console.log(
-              `  ${index + 1}. ${edu.degree} at ${edu.institution} (${
-                edu.duration
-              })`
-            );
-          });
-        }
-
-        if (result.cvData.experiences && result.cvData.experiences.length > 0) {
-          console.log("💼 Experience:");
-          result.cvData.experiences.forEach((exp, index) => {
-            console.log(
-              `  ${index + 1}. ${exp.role} at ${exp.company} (${exp.duration})`
-            );
-          });
-        }
-
-        if (result.cvData.skills && result.cvData.skills.length > 0) {
-          console.log("⚡ Skills:", result.cvData.skills.join(", "));
-        }
-
-        if (result.cvData.parseText) {
-          console.log("📄 Full Parsed Text:");
-          console.log(result.cvData.parseText);
-        }
-
-        if (
-          result.cvData.matchScore !== null &&
-          result.cvData.matchScore !== undefined
-        ) {
-          console.log("📊 Match Score:", result.cvData.matchScore);
-        }
-
-        if (
-          result.cvData.jobRecommendation &&
-          Object.keys(result.cvData.jobRecommendation).length > 0
-        ) {
-          console.log(
-            "💡 Job Recommendation:",
-            result.cvData.jobRecommendation
-          );
-        }
-
-        if (
-          result.cvData.fixCv &&
-          Object.keys(result.cvData.fixCv).length > 0
-        ) {
-          console.log("🔧 CV Fix Recommendations:", result.cvData.fixCv);
-        }
-      }
-
-      // Also log if the data structure is different
-      if (result.appliedJob) {
-        console.log("=== PARSED CV DATA ===");
-        console.log("Applied Job:", result.appliedJob);
-        console.log("Name:", result.name);
-        console.log("Job Title:", result.jobTitle);
-        console.log("Education:", result.educations);
-        console.log("Experience:", result.experiences);
-        console.log("Skills:", result.skills);
-        console.log("Parsed Text:", result.parseText);
-        console.log("Match Score:", result.matchScore);
-        console.log("Job Recommendations:", result.jobRecommendation);
-        console.log("CV Fix Suggestions:", result.fixCv);
-      }
+      console.log("Upload successful:", result);
 
       setSuccess("Your CV has been successfully uploaded and analyzed!");
 
