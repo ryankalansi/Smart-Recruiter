@@ -67,20 +67,17 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        "https://smart-recruiter-five.vercel.app/api/auth/signup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: formData.fullName,
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      );
+      const response = await fetch("http://localhost:3000/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
       if (!response.ok) {
         let errorMessage = "Registration failed";

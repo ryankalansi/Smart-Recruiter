@@ -1,76 +1,46 @@
-import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
-
 export const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white py-8" id="kontak">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-          <div className="flex flex-col items-center md:items-start">
-            <h3 className="text-lg font-medium mb-4 flex items-center">
+    <footer className="bg-slate-800 text-white py-12" id="kontak">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-12 text-center md:text-left">
+          {/* Brand Section */}
+          <div className="flex-1 max-w-sm w-full">
+            <h3 className="text-lg font-medium mb-4 flex items-center justify-center md:justify-start">
               <div className="h-6 w-6 bg-blue-600 rounded-md flex items-center justify-center text-white font-bold mr-2 text-xs">
                 AI
               </div>
               Smart Recruiter
             </h3>
-            <p className="text-gray-400 text-sm mb-4 max-w-xs">
-              AI-based CV analysis solution to improve your career
-              opportunities.
+            <p className="text-gray-300 text-sm leading-relaxed">
+              AI-based CV analysis solution to improve your career opportunities
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white">
-                <span className="sr-only">Facebook</span>
-                <FaFacebookF className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white">
-                <span className="sr-only">Instagram</span>
-                <FaInstagram className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white">
-                <span className="sr-only">Twitter</span>
-                <FaTwitter className="h-5 w-5" />
-              </a>
+          </div>
+
+          {/* Contact Section */}
+          <div className="flex-1 max-w-sm w-full">
+            <h4 className="text-lg font-semibold mb-4 text-white">Contact</h4>
+            <div className="space-y-3 text-sm">
+              <div className="text-gray-300">
+                <span className="text-gray-400">Email:</span>
+                info@smartrecruiter.com
+              </div>
+              <div className="text-gray-300">
+                <span className="text-gray-400">Telephone:</span>
+                +62 123 456
+              </div>
+              <div className="text-gray-300">
+                <span className="text-gray-400">Address:</span>
+                Jl. Teknologi No. 123, Jakarta
+              </div>
             </div>
           </div>
-          <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider mb-4">
-              Contact
-            </h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li>Email: info@aismartrecruiter.com</li>
-              <li>Telephone: +62 123 456 7890</li>
-              <li>Address: Jl. Teknologi No. 123, Jakarta</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-sm font-semibold uppercase tracking-wider mb-4">
-              Links
-            </h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href="#" className="text-gray-400 hover:text-white">
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-400 hover:text-white">
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-400 hover:text-white">
-                  Terms & Conditions
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-400 hover:text-white">
-                  FAQ
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
-        <div className="border-t border-gray-700 mt-8 pt-6 text-sm text-gray-400 text-center">
-          © 2025 AI Smart Recruiter. All rights reserved.
+
+        {/* Copyright Section */}
+        <div className="border-t border-gray-600 mt-10 pt-6">
+          <p className="text-gray-400 text-sm text-center">
+            &copy; 2025 AI Smart Recruiter. All rights reserved.{" "}
+          </p>
         </div>
       </div>
     </footer>
