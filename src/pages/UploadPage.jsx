@@ -92,7 +92,7 @@ const UploadPage = () => {
     }
   };
 
-  // Delet selected file
+  // Delete selected file
   const removeFile = () => {
     setSelectedFile(null);
     setError("");
@@ -128,14 +128,14 @@ const UploadPage = () => {
       formData.append("cv", selectedFile);
       formData.append("appliedJob", appliedJob);
 
-      // if backend neet userId
+      // if backend need userId
       if (user?.id) {
         formData.append("userId", user.id);
       }
 
-      // console.log("Uploading to API...");
-      // console.log("Applied Job:", appliedJob);
-      // console.log("File:", selectedFile.name);
+      console.log("Uploading to API...");
+      console.log("Applied Job:", appliedJob);
+      console.log("File:", selectedFile.name);
 
       const response = await fetch(
         "https://be-dicoding-cv-o8hg.vercel.app/api/cvs/upload",
@@ -170,15 +170,26 @@ const UploadPage = () => {
 
       setSuccess("Your CV has been successfully uploaded and analyzed!");
 
-      // Reset form after a few seconds
+      // Store the parsing result in localStorage for result page
+      if (result.data) {
+        localStorage.setItem("cvAnalysisResult", JSON.stringify(result.data));
+      }
+
+      // Reset form and redirect after a few seconds
       setTimeout(() => {
         setSelectedFile(null);
         setAppliedJob("");
         setSuccess("");
 
-        // Redirect to result page after 2 seconds
-        if (result.analysisId || result.id) {
-          navigate(`/result/${result.analysisId || result.id}`);
+        // Redirect to result page using the ID from response
+        const resultId = result.data?.id || result.id;
+        if (resultId) {
+          navigate(`/result/${resultId}`);
+        } else {
+          console.error("No ID found in response");
+          setError(
+            "Analysis completed but unable to show results. Please try again."
+          );
         }
       }, 2000);
     } catch (error) {
@@ -257,7 +268,7 @@ const UploadPage = () => {
                     <FaUpload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                     <div className="space-y-2">
                       <p className="text-lg font-medium text-gray-600">
-                        Drag & drop CV your CV here
+                        Drag & drop your CV here
                       </p>
                       <p className="text-sm text-gray-500">or</p>
                       <label className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer transition-colors">
@@ -328,7 +339,7 @@ const UploadPage = () => {
                 <button
                   type="submit"
                   disabled={isUploading || !selectedFile || !appliedJob.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-3 px-8 rounded-lg transition-colors flex items-center min-w-[200px] justify-center"
+                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-3 px-8 rounded-lg transition-colors flex items-center min-w-[200px] justify-center cursor-pointer"
                 >
                   {isUploading ? (
                     <>
@@ -337,7 +348,7 @@ const UploadPage = () => {
                     </>
                   ) : (
                     <>
-                      <FaBoltLightning className="mr-2 cursor-pointer" />
+                      <FaBoltLightning className="mr-2 " />
                       Analyze CV Now
                     </>
                   )}
