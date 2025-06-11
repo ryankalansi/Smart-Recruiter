@@ -14,6 +14,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/upload" element={<UploadPage />} />
+          <Route path="/result" element={<ResultPage />} />
           <Route path="/result/:id" element={<ResultPage />} />
         </Routes>
       </div>

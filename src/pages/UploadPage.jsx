@@ -151,7 +151,7 @@ const UploadPage = () => {
       console.log("Response status:", response.status);
 
       if (!response.ok) {
-        let errorMessage = "Gagal mengupload CV";
+        let errorMessage = "Failed to upload CV";
 
         try {
           const errorData = await response.json();
@@ -170,27 +170,19 @@ const UploadPage = () => {
 
       setSuccess("Your CV has been successfully uploaded and analyzed!");
 
-      // Store the parsing result in localStorage for result page
+      // Store the analysis result data for result page
       if (result.data) {
         localStorage.setItem("cvAnalysisResult", JSON.stringify(result.data));
       }
 
-      // Reset form and redirect after a few seconds
+      // Reset form and redirect after showing success message
       setTimeout(() => {
         setSelectedFile(null);
         setAppliedJob("");
         setSuccess("");
 
-        // Redirect to result page using the ID from response
-        const resultId = result.data?.id || result.id;
-        if (resultId) {
-          navigate(`/result/${resultId}`);
-        } else {
-          console.error("No ID found in response");
-          setError(
-            "Analysis completed but unable to show results. Please try again."
-          );
-        }
+        // Redirect to result page without ID - using stored data approach
+        navigate("/result");
       }, 2000);
     } catch (error) {
       console.error("Upload error:", error);

@@ -1,20 +1,10 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import {
-  FaCheckCircle,
-  FaUpload,
-  FaHome,
-  FaLightbulb,
-  FaUser,
-  FaCode,
-  FaDatabase,
-  FaCog,
-} from "react-icons/fa";
+import { useNavigate, Link } from "react-router-dom";
+import { FaCheckCircle, FaUpload, FaHome, FaLightbulb } from "react-icons/fa";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 
 const ResultPage = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,120 +36,65 @@ const ResultPage = () => {
     }
   }, [navigate]);
 
-  // Fetch analysis result from API
+  // Load analysis result from localStorage
   useEffect(() => {
-    const fetchAnalysisResult = async () => {
-      if (!user || !id) return;
+    if (!user) return;
 
-      setLoading(true);
-      setError(null);
+    try {
+      const storedResult = localStorage.getItem("cvAnalysisResult");
 
-      try {
-        const token = localStorage.getItem("token");
-
-        // Fetch data from API using the ID from URL params
-        const response = await fetch(
-          `https://be-dicoding-cv-o8hg.vercel.app/api/cvs/${id}`,
-          {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error(
-              "CV analysis not found. Please upload and analyze your CV first."
-            );
-          } else if (response.status === 401) {
-            throw new Error("Authentication failed. Please login again.");
-          } else {
-            throw new Error(
-              `Failed to fetch data. Server returned ${response.status}`
-            );
-          }
-        }
-
-        const data = await response.json();
-        console.log("API Response:", data); // For debugging
-
-        // Validate required data exists
-        if (!data) {
-          throw new Error("No data received from server");
-        }
-
-        // Transform API response to match component structure
-        const transformedResult = {
-          id: id,
-          resumeScore: data.matchScore || 0,
-          scoreLabel: getScoreLabel(data.matchScore || 0),
-          jobRecommendations: Array.isArray(data.jobRecommendation)
-            ? data.jobRecommendation.map((job) => ({
-                title: job.title || job.name || "Position not specified",
-                description:
-                  job.description || job.reason || "No description available",
-              }))
-            : [],
-          tips: Array.isArray(data.fixCv)
-            ? data.fixCv.map((tip, index) => ({
-                icon: getTipIcon(index),
-                title:
-                  tip.title || tip.category || `Improvement Tip ${index + 1}`,
-                description:
-                  tip.description ||
-                  tip.suggestion ||
-                  "No description available",
-                example: tip.example || tip.badExample || tip.goodExample || "",
-              }))
-            : [],
-        };
-
-        setAnalysisResult(transformedResult);
-
-        // Check if we have meaningful data
-        if (
-          transformedResult.resumeScore === 0 &&
-          transformedResult.jobRecommendations.length === 0 &&
-          transformedResult.tips.length === 0
-        ) {
-          setError(
-            "Analysis data is incomplete. The CV might still be processing."
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching analysis result:", error);
+      if (!storedResult) {
         setError(
-          error.message || "Failed to load analysis result. Please try again."
+          "No analysis result found. Please upload and analyze your CV first."
         );
-
-        // If it's an authentication error, redirect to login
-        if (error.message.includes("Authentication")) {
-          localStorage.removeItem("user");
-          localStorage.removeItem("token");
-          navigate("/login");
-          return;
-        }
-
-        // Set analysisResult as null to show error state
-        setAnalysisResult(null);
-      } finally {
         setLoading(false);
+        return;
       }
-    };
 
-    fetchAnalysisResult();
-  }, [id, user, navigate]);
+      const data = JSON.parse(storedResult);
+      console.log("Analysis Result Data:", data);
 
-  // Helper function to get score label
-  const getScoreLabel = (score) => {
-    if (score >= 80) return "Very Good";
-    if (score >= 60) return "Good";
-    if (score >= 40) return "Enough";
-    return "Bad";
-  };
+      // Validate that we have the required data
+      if (!data || typeof data !== "object") {
+        setError(
+          "Invalid analysis result data. Please try uploading your CV again."
+        );
+        setLoading(false);
+        return;
+      }
+
+      // Transform the data to match component structure
+      const transformedResult = {
+        resumeScore: data.matchScore || 0,
+        jobRecommendations: Array.isArray(data.jobRecommendation)
+          ? data.jobRecommendation.map((job) => ({
+              title: job.title || job.name || "Position not specified",
+              description:
+                job.description || job.reason || "No description available",
+            }))
+          : [],
+        tips: Array.isArray(data.fixCv)
+          ? data.fixCv.map((tip, index) => ({
+              icon: getTipIcon(index),
+              title:
+                tip.title || tip.category || `Improvement Tip ${index + 1}`,
+              description:
+                tip.description || tip.suggestion || "No description available",
+              example: tip.example || tip.badExample || tip.goodExample || "",
+            }))
+          : [],
+      };
+
+      setAnalysisResult(transformedResult);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error loading analysis result:", error);
+      setError(
+        "Failed to load analysis result. Please try uploading your CV again."
+      );
+      setLoading(false);
+    }
+  }, [user]);
 
   // Helper function to get tip icons
   const getTipIcon = (index) => {
@@ -183,7 +118,7 @@ const ResultPage = () => {
         bgColor: "bg-yellow-600",
         label: "Enough",
       };
-    return { color: "text-red-600", bgColor: "bg-red-600", label: "Bad" };
+    return { color: "text-red-600", bgColor: "bg-red-600", label: "Poor" };
   };
 
   // Loading state
@@ -198,7 +133,7 @@ const ResultPage = () => {
     );
   }
 
-  // Error state - completely remove mock data fallback
+  // Error state
   if (error || !analysisResult) {
     return (
       <>
@@ -207,23 +142,18 @@ const ResultPage = () => {
           <div className="max-w-md mx-auto text-center p-8">
             <div className="text-red-500 text-6xl mb-6">⚠️</div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Unable to Load Analysis
+              No Analysis Results Found
             </h2>
             <p className="text-gray-600 mb-6">
-              {error || "Failed to load your CV analysis results."}
+              {error ||
+                "Please upload and analyze your CV first to see the results."}
             </p>
             <div className="space-y-3">
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-              >
-                Try Again
-              </button>
               <Link
                 to="/upload"
-                className="block w-full bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                className="block w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
               >
-                Upload New CV
+                Upload & Analyze CV
               </Link>
               <Link
                 to="/"
@@ -288,14 +218,14 @@ const ResultPage = () => {
           </div>
 
           {/* Job Recommendations */}
-          {analysisResult.jobRecommendations.length > 0 ? (
-            <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-              <div className="flex items-center mb-6">
-                <FaCheckCircle className="h-6 w-6 text-green-500 mr-3" />
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Job Recommendations
-                </h2>
-              </div>
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <div className="flex items-center mb-6">
+              <FaCheckCircle className="h-6 w-6 text-green-500 mr-3" />
+              <h2 className="text-xl font-semibold text-gray-900">
+                Job Recommendations
+              </h2>
+            </div>
+            {analysisResult.jobRecommendations.length > 0 ? (
               <div className="space-y-4">
                 {analysisResult.jobRecommendations.map((job, index) => (
                   <div
@@ -309,34 +239,26 @@ const ResultPage = () => {
                   </div>
                 ))}
               </div>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-              <div className="flex items-center mb-4">
-                <FaCheckCircle className="h-6 w-6 text-gray-400 mr-3" />
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Job Recommendations
-                </h2>
-              </div>
+            ) : (
               <p className="text-gray-500 text-center py-8">
-                No job recommendations available at this time.
+                No job recommendations available based on your CV analysis.
               </p>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Tips to improve */}
-          {analysisResult.tips.length > 0 ? (
-            <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-              <div className="flex items-center mb-6">
-                <FaLightbulb className="h-6 w-6 text-yellow-500 mr-3" />
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Tips to Improve Your CV
-                </h2>
-              </div>
-              <p className="text-gray-600 mb-6">
-                AI-powered suggestions to enhance your CV and make it stand out.
-              </p>
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <div className="flex items-center mb-6">
+              <FaLightbulb className="h-6 w-6 text-yellow-500 mr-3" />
+              <h2 className="text-xl font-semibold text-gray-900">
+                Tips to Improve Your CV
+              </h2>
+            </div>
+            <p className="text-gray-600 mb-6">
+              AI-powered suggestions to enhance your CV and make it stand out.
+            </p>
 
+            {analysisResult.tips.length > 0 ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {analysisResult.tips.map((tip, index) => (
                   <div
@@ -360,20 +282,12 @@ const ResultPage = () => {
                   </div>
                 ))}
               </div>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-              <div className="flex items-center mb-4">
-                <FaLightbulb className="h-6 w-6 text-gray-400 mr-3" />
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Tips to Improve Your CV
-                </h2>
-              </div>
+            ) : (
               <p className="text-gray-500 text-center py-8">
-                No improvement tips available at this time.
+                No improvement tips available based on your CV analysis.
               </p>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
