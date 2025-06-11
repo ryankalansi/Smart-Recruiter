@@ -137,13 +137,16 @@ const UploadPage = () => {
       // console.log("Applied Job:", appliedJob);
       // console.log("File:", selectedFile.name);
 
-      const response = await fetch("http://localhost:3000/api/cvs/upload", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        "https://be-dicoding-cv-o8hg.vercel.app/api/cvs/upload",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
       console.log("Response status:", response.status);
 
