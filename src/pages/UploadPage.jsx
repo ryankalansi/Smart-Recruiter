@@ -303,7 +303,7 @@ const UploadPage = () => {
                 )}
               </div>
 
-              {/* Pesan Error */}
+              {/* error message */}
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                   <div className="flex items-center">
@@ -313,7 +313,7 @@ const UploadPage = () => {
                 </div>
               )}
 
-              {/* Pesan Sukses */}
+              {/* success message */}
               {success && (
                 <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
                   <div className="flex items-center">
@@ -337,7 +337,7 @@ const UploadPage = () => {
                     </>
                   ) : (
                     <>
-                      <FaBoltLightning className="mr-2" />
+                      <FaBoltLightning className="mr-2 cursor-pointer" />
                       Analyze CV Now
                     </>
                   )}
