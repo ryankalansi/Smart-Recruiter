@@ -89,15 +89,19 @@ const ResultPage = () => {
 
   // Get score color and label
   const getScoreDetails = (score) => {
-    if (score >= 80)
+    // Parse the percentage string to number (remove % and convert to number)
+    const numericScore =
+      typeof score === "string" ? parseInt(score.replace("%", "")) : score;
+
+    if (numericScore >= 80)
       return {
         color: "text-green-600",
         bgColor: "bg-green-600",
         label: "Very Good",
       };
-    if (score >= 60)
+    if (numericScore >= 60)
       return { color: "text-blue-600", bgColor: "bg-blue-600", label: "Good" };
-    if (score >= 40)
+    if (numericScore >= 40)
       return {
         color: "text-yellow-600",
         bgColor: "bg-yellow-600",
