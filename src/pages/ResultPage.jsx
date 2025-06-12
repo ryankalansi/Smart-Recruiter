@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { FaCheckCircle, FaUpload, FaHome, FaLightbulb } from "react-icons/fa";
+import { FaCheckCircle, FaUpload, FaHome } from "react-icons/fa";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 
@@ -110,6 +110,14 @@ const ResultPage = () => {
     return { color: "text-red-600", bgColor: "bg-red-600", label: "Poor" };
   };
 
+  // Helper function to get numeric score for progress bar
+  const getNumericScore = (score) => {
+    if (typeof score === "string") {
+      return parseInt(score.replace("%", ""));
+    }
+    return score;
+  };
+
   // Loading state
   if (loading || !user) {
     return (
@@ -196,7 +204,7 @@ const ResultPage = () => {
                 <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
                   <div
                     className={`h-3 rounded-full ${scoreDetails.bgColor} transition-all duration-1000`}
-                    style={{ width: `${analysisResult.resumeScore}%` }}
+                    style={{ width: `${getNumericScore.resumeScore}%` }}
                   ></div>
                 </div>
                 <p className="text-sm text-gray-500">
