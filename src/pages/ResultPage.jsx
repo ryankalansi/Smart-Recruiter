@@ -71,7 +71,7 @@ const ResultPage = () => {
               title: job.role || job.role || "Position not specified",
               description: job.matchScore
                 ? `${Math.round(job.matchScore * 100)}%`
-                : "No description available",
+                : "No score available",
             }))
           : [],
       };
@@ -204,11 +204,13 @@ const ResultPage = () => {
                 <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
                   <div
                     className={`h-3 rounded-full ${scoreDetails.bgColor} transition-all duration-1000`}
-                    style={{ width: `${getNumericScore.resumeScore}%` }}
+                    style={{
+                      width: `${getNumericScore(analysisResult.resumeScore)}%`,
+                    }}
                   ></div>
                 </div>
                 <p className="text-sm text-gray-500">
-                  Out of 100 maximum points
+                  Out of 100% maximum points
                 </p>
               </div>
             </div>
