@@ -68,9 +68,9 @@ const ResultPage = () => {
         resumeScore: data.matchScore || 0,
         jobRecommendations: Array.isArray(data.jobRecommendation)
           ? data.jobRecommendation.map((job) => ({
-              title: job.title || job.name || "Position not specified",
+              title: job.role || job.role || "Position not specified",
               description:
-                job.description || job.reason || "No description available",
+                job.matchScore || job.matchScore || "No description available",
             }))
           : [],
       };
