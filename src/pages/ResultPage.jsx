@@ -65,7 +65,7 @@ const ResultPage = () => {
 
       // Transform the data to match component structure
       const transformedResult = {
-        resumeScore: data.matchScore || 0,
+        resumeScore: Math.round((data.matchScore || 0) * 100),
         jobRecommendations: Array.isArray(data.jobRecommendation)
           ? data.jobRecommendation.map((job) => ({
               title: job.role || job.role || "Position not specified",
