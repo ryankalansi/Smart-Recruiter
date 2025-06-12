@@ -71,7 +71,7 @@ const ResultPage = () => {
               title: job.role || job.role || "Position not specified",
               description:
                 job.Math.round((data.matchScore || 0) * 100) ||
-                Math.round((data.matchScore || 0) * 100) ||
+                job.Math.round((data.matchScore || 0) * 100) ||
                 "No description available",
             }))
           : [],
