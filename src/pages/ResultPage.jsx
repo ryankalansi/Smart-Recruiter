@@ -1,53 +1,106 @@
 import { useState, useEffect } from "react";
-// REMOVED 'useNavigate' as it is not used in this component.
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { FaCheckCircle, FaUpload, FaHome, FaLightbulb } from "react-icons/fa";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 
 const ResultPage = () => {
-  // const navigate = useNavigate(); // REMOVED - This was not being used.
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [error, setError] = useState(null);
 
+  // Check auth
   useEffect(() => {
-    const storedResult = localStorage.getItem("analysisResult");
+    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
 
-    if (storedResult) {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    if (storedUser && storedUser !== "undefined") {
       try {
-        const data = JSON.parse(storedResult);
-
-        const transformedResult = {
-          resumeScore: data.matchScore || 0,
-          jobRecommendations: Array.isArray(data.jobRecommendation)
-            ? data.jobRecommendation.map((job) => ({
-                title: job.title || job.name || "Position not specified",
-                description:
-                  job.description || job.reason || "No description available",
-              }))
-            : [],
-          // KEY CHANGE: Data transformation for 'tips' simplified to only include the title.
-          tips: Array.isArray(data.fixCv)
-            ? data.fixCv.map((tip, index) => ({
-                title:
-                  tip.title || tip.category || `Improvement Tip ${index + 1}`,
-              }))
-            : [],
-        };
-
-        setAnalysisResult(transformedResult);
-      } catch (e) {
-        console.error("Error parsing analysis result from localStorage:", e);
-        setError("Failed to load analysis results. Data is invalid.");
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        navigate("/login");
       }
     } else {
-      setError("No analysis results found. Please upload your CV first.");
+      navigate("/login");
     }
-    setLoading(false);
-  }, []); // Empty dependency array to run only once on mount
+  }, [navigate]);
 
-  // The getTipIcon function is no longer needed and has been removed.
+  // Load analysis result from localStorage
+  useEffect(() => {
+    if (!user) return;
+
+    try {
+      const storedResult = localStorage.getItem("cvAnalysisResult");
+
+      if (!storedResult) {
+        setError(
+          "No analysis result found. Please upload and analyze your CV first."
+        );
+        setLoading(false);
+        return;
+      }
+
+      const data = JSON.parse(storedResult);
+      console.log("Analysis Result Data:", data);
+
+      // Validate that we have the required data
+      if (!data || typeof data !== "object") {
+        setError(
+          "Invalid analysis result data. Please try uploading your CV again."
+        );
+        setLoading(false);
+        return;
+      }
+
+      // Transform the data to match component structure
+      const transformedResult = {
+        resumeScore: data.matchScore || 0,
+        jobRecommendations: Array.isArray(data.jobRecommendation)
+          ? data.jobRecommendation.map((job) => ({
+              title: job.title || job.name || "Position not specified",
+              description:
+                job.description || job.reason || "No description available",
+            }))
+          : [],
+        tips: Array.isArray(data.fixCv)
+          ? data.fixCv.map((tip, index) => ({
+              icon: getTipIcon(index),
+              title:
+                tip.title || tip.category || `Improvement Tip ${index + 1}`,
+              description:
+                tip.description || tip.suggestion || "No description available",
+              example: tip.example || tip.badExample || tip.goodExample || "",
+            }))
+          : [],
+      };
+
+      setAnalysisResult(transformedResult);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error loading analysis result:", error);
+      setError(
+        "Failed to load analysis result. Please try uploading your CV again."
+      );
+      setLoading(false);
+    }
+  }, [user]);
+
+  // Helper function to get tip icons
+  const getTipIcon = (index) => {
+    const icons = ["💼", "🎯", "🏆", "📊", "✏️", "🎨", "🔤", "📈", "✅"];
+    return icons[index % icons.length];
+  };
 
   // Get score color and label
   const getScoreDetails = (score) => {
@@ -63,27 +116,24 @@ const ResultPage = () => {
       return {
         color: "text-yellow-600",
         bgColor: "bg-yellow-600",
-        label: "Fair",
+        label: "Enough",
       };
-    return {
-      color: "text-red-600",
-      bgColor: "bg-red-600",
-      label: "Needs Improvement",
-    };
+    return { color: "text-red-600", bgColor: "bg-red-600", label: "Poor" };
   };
 
-  if (loading) {
+  // Loading state
+  if (loading || !user) {
     return (
-      <>
-        <Navbar />
-        <div className="min-h-screen bg-gray-50 pt-20 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your CV analysis...</p>
         </div>
-        <Footer />
-      </>
+      </div>
     );
   }
 
+  // Error state
   if (error || !analysisResult) {
     return (
       <>
@@ -92,9 +142,12 @@ const ResultPage = () => {
           <div className="max-w-md mx-auto text-center p-8">
             <div className="text-red-500 text-6xl mb-6">⚠️</div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Analysis Not Available
+              No Analysis Results Found
             </h2>
-            <p className="text-gray-600 mb-6">{error}</p>
+            <p className="text-gray-600 mb-6">
+              {error ||
+                "Please upload and analyze your CV first to see the results."}
+            </p>
             <div className="space-y-3">
               <Link
                 to="/upload"
@@ -123,6 +176,7 @@ const ResultPage = () => {
       <Navbar />
       <div className="min-h-screen bg-gray-50 pt-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
               CV Analysis Results
@@ -133,6 +187,7 @@ const ResultPage = () => {
             </p>
           </div>
 
+          {/* CV Score */}
           <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
             <div className="text-center">
               <h2 className="text-xl font-semibold text-gray-700 mb-6">
@@ -162,6 +217,7 @@ const ResultPage = () => {
             </div>
           </div>
 
+          {/* Job Recommendations */}
           <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
             <div className="flex items-center mb-6">
               <FaCheckCircle className="h-6 w-6 text-green-500 mr-3" />
@@ -190,6 +246,7 @@ const ResultPage = () => {
             )}
           </div>
 
+          {/* Tips to improve */}
           <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
             <div className="flex items-center mb-6">
               <FaLightbulb className="h-6 w-6 text-yellow-500 mr-3" />
@@ -197,17 +254,31 @@ const ResultPage = () => {
                 Tips to Improve Your CV
               </h2>
             </div>
+            <p className="text-gray-600 mb-6">
+              AI-powered suggestions to enhance your CV and make it stand out.
+            </p>
+
             {analysisResult.tips.length > 0 ? (
-              // KEY CHANGE: JSX for rendering tips simplified to only show the title.
-              <div className="space-y-3">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {analysisResult.tips.map((tip, index) => (
                   <div
                     key={index}
-                    className="bg-gray-50 p-3 rounded-lg border border-gray-200"
+                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                   >
-                    <p className="text-sm font-medium text-gray-800">
-                      {tip.title}
+                    <div className="flex items-start mb-3">
+                      <span className="text-2xl mr-3">{tip.icon}</span>
+                      <h3 className="font-semibold text-gray-900 text-sm leading-tight">
+                        {tip.title}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">
+                      {tip.description}
                     </p>
+                    {tip.example && (
+                      <p className="text-xs text-gray-500 italic">
+                        {tip.example}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -218,6 +289,7 @@ const ResultPage = () => {
             )}
           </div>
 
+          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/upload"
