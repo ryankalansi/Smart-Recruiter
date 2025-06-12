@@ -73,16 +73,6 @@ const ResultPage = () => {
                 job.description || job.reason || "No description available",
             }))
           : [],
-        tips: Array.isArray(data.fixCv)
-          ? data.fixCv.map((tip, index) => ({
-              icon: getTipIcon(index),
-              title:
-                tip.title || tip.category || `Improvement Tip ${index + 1}`,
-              description:
-                tip.description || tip.suggestion || "No description available",
-              example: tip.example || tip.badExample || tip.goodExample || "",
-            }))
-          : [],
       };
 
       setAnalysisResult(transformedResult);
@@ -95,12 +85,6 @@ const ResultPage = () => {
       setLoading(false);
     }
   }, [user]);
-
-  // Helper function to get tip icons
-  const getTipIcon = (index) => {
-    const icons = ["💼", "🎯", "🏆", "📊", "✏️", "🎨", "🔤", "📈", "✅"];
-    return icons[index % icons.length];
-  };
 
   // Get score color and label
   const getScoreDetails = (score) => {
@@ -242,49 +226,6 @@ const ResultPage = () => {
             ) : (
               <p className="text-gray-500 text-center py-8">
                 No job recommendations available based on your CV analysis.
-              </p>
-            )}
-          </div>
-
-          {/* Tips to improve */}
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <div className="flex items-center mb-6">
-              <FaLightbulb className="h-6 w-6 text-yellow-500 mr-3" />
-              <h2 className="text-xl font-semibold text-gray-900">
-                Tips to Improve Your CV
-              </h2>
-            </div>
-            <p className="text-gray-600 mb-6">
-              AI-powered suggestions to enhance your CV and make it stand out.
-            </p>
-
-            {analysisResult.tips.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {analysisResult.tips.map((tip, index) => (
-                  <div
-                    key={index}
-                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-start mb-3">
-                      <span className="text-2xl mr-3">{tip.icon}</span>
-                      <h3 className="font-semibold text-gray-900 text-sm leading-tight">
-                        {tip.title}
-                      </h3>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-2">
-                      {tip.description}
-                    </p>
-                    {tip.example && (
-                      <p className="text-xs text-gray-500 italic">
-                        {tip.example}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500 text-center py-8">
-                No improvement tips available based on your CV analysis.
               </p>
             )}
           </div>
