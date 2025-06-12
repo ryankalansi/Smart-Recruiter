@@ -70,7 +70,9 @@ const ResultPage = () => {
           ? data.jobRecommendation.map((job) => ({
               title: job.role || job.role || "Position not specified",
               description:
-                job.matchScore || job.matchScore || "No description available",
+                job.Math.round((data.matchScore || 0) * 100) ||
+                Math.round((data.matchScore || 0) * 100) ||
+                "No description available",
             }))
           : [],
       };
