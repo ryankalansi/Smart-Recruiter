@@ -4,7 +4,7 @@ export const FeaturesSection = () => {
   const features = [
     {
       icon: <FaSearch className="h-6 w-6 text-blue-600" />,
-      title: "Cv Scoring",
+      title: "CV Scoring",
       description:
         "Get a comprehensive score based on the structure, content, and suitability of your CV to industry standards.",
     },
@@ -18,7 +18,7 @@ export const FeaturesSection = () => {
       icon: <FaChartBar className="h-6 w-6 text-blue-600" />,
       title: "Compatibility Analysis",
       description:
-        "Measure how well your resume matches a specific job description and get suggestions for improvement.",
+        "Measure how well your CV matches a specific job with the given percentage value.",
     },
   ];
 

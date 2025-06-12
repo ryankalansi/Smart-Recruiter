@@ -13,7 +13,7 @@ export const HowItWorksSection = () => {
     {
       number: 3,
       title: "Results",
-      description: "Get a comprehensive report with improvement suggestions",
+      description: "Get a comprehensive report with the assessment given",
     },
   ];
 
