@@ -188,7 +188,7 @@ const ResultPage = () => {
           <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
             <div className="text-center">
               <h2 className="text-xl font-semibold text-gray-700 mb-6">
-                Resume Score
+                CV Score
               </h2>
               <div className="mb-6">
                 <div
