@@ -385,7 +385,8 @@ const UploadPage = () => {
                 Recommendation
               </h3>
               <p className="text-sm text-gray-600">
-                Get repair advice and job recommendations that fit your needs
+                Get job recommendations that match your needs with the
+                percentage value provided.
               </p>
             </div>
           </div>
