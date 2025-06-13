@@ -48,7 +48,7 @@ Pastikan Anda telah menginstal Node.js dan npm (atau package manager lain sepert
 
 1.  **Clone repositori ini:**
     ```bash
-    git clone <URL_REPOSITORI_ANDA>
+    git clone https://github.com/ryankalansi/Smart-Recruiter.git
     ```
 
 2.  **Masuk ke direktori proyek:**
