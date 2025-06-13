@@ -79,4 +79,8 @@ Dalam file `package.json`, Anda akan menemukan beberapa skrip:
 ## 🌐 API Backend
 
 Frontend ini terhubung ke layanan backend yang di-host di Vercel untuk fungsionalitas autentikasi dan analisis CV. Endpoint utama API berada di:
+<<<<<<< HEAD
 `https://be-dicoding-cv-o8hg.vercel.app/api/`.
+=======
+`https://be-dicoding-cv-o8hg.vercel.app/api/`.
+>>>>>>> c0536ff0a2e281fc8c8810d2c96bc7cc148c24a8
